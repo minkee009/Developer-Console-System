@@ -1,183 +1,186 @@
 ﻿using System.Collections.Generic;
 using System;
 
-public class TrieNode
+namespace SPTr.CustomCollections
 {
-    public char Key { get; private set; }
-    public Dictionary<char, TrieNode> Children { get; private set; }
-    public string Data { get; private set; }
-
-    public TrieNode(char key)
+    public class TrieNode
     {
-        Key = key;
-        Children = new Dictionary<char, TrieNode>();
-        Data = null;
-    }
+        public char Key { get; private set; }
+        public Dictionary<char, TrieNode> Children { get; private set; }
+        public string Data { get; private set; }
 
-    public void SetData(string data) => Data = data;
-}
-
-public class Autocomplete
-{
-    private TrieNode _root;
-    private Stack<TrieNode> _searchStack;
-
-    public Autocomplete()
-    {
-        _root = new TrieNode(' ');
-        _searchStack = new Stack<TrieNode>();
-    }
-
-    public void Add(string word)
-    {
-        var node = _root;
-        foreach (var c in word)
+        public TrieNode(char key)
         {
-            if (!node.Children.ContainsKey(c))
-            {
-                node.Children[c] = new TrieNode(c);
-            }
-
-            node = node.Children[c];
+            Key = key;
+            Children = new Dictionary<char, TrieNode>();
+            Data = null;
         }
 
-        node.SetData(word);
+        public void SetData(string data) => Data = data;
     }
 
-    public bool Remove(string word)
+    public class TrieTree
     {
-        var node = _root;
-        var parent = _root;
-        foreach (var c in word)
+        private TrieNode _root;
+        private Stack<TrieNode> _searchStack;
+
+        public TrieTree()
         {
-            if (!node.Children.ContainsKey(c))
+            _root = new TrieNode(' ');
+            _searchStack = new Stack<TrieNode>();
+        }
+
+        public void Add(string word)
+        {
+            var node = _root;
+            foreach (var c in word)
+            {
+                if (!node.Children.ContainsKey(c))
+                {
+                    node.Children[c] = new TrieNode(c);
+                }
+
+                node = node.Children[c];
+            }
+
+            node.SetData(word);
+        }
+
+        public bool Remove(string word)
+        {
+            var node = _root;
+            var parent = _root;
+            foreach (var c in word)
+            {
+                if (!node.Children.ContainsKey(c))
+                {
+                    Console.WriteLine("삭제하려는 요소가 없습니다.");
+                    return false;
+                }
+
+                parent = node;
+                node = node.Children[c];
+            }
+
+            if (node.Data == null)
             {
                 Console.WriteLine("삭제하려는 요소가 없습니다.");
                 return false;
             }
-
-            parent = node;
-            node = node.Children[c];
-        }
-
-        if (node.Data == null)
-        {
-            Console.WriteLine("삭제하려는 요소가 없습니다.");
-            return false;
-        }
-        else if (node.Children.Count == 0)
-        {
-            parent.Children.Remove(node.Key);
-        }
-        else
-        {
-            node.SetData(null);
-        }
-
-        return true;
-    }
-
-    public List<string> GetSuggestions(string prefix)
-    {
-        var node = _root;
-        foreach (var c in prefix)
-        {
-            if (!node.Children.ContainsKey(c))
+            else if (node.Children.Count == 0)
             {
-                return null;
+                parent.Children.Remove(node.Key);
+            }
+            else
+            {
+                node.SetData(null);
             }
 
-            node = node.Children[c];
+            return true;
         }
 
-        return GetSuggestions(node, prefix);
-    }
-
-    public List<string> GetSuggestions(TrieNode node, string prefix)
-    {
-        var suggestions = new List<string>();
-        var current = node;
-
-        _searchStack.Push(current);
-
-        while (_searchStack.Count > 0)
+        public List<string> GetSuggestions(string prefix)
         {
-            current = _searchStack.Pop();
-            if (current.Data != null)
-                suggestions.Add(current.Data);
-
-            if (current.Children.Count > 0)
-                foreach (var child in current.Children.Values)
-                    _searchStack.Push(child);
-        }
-
-        _searchStack.Clear();
-
-        return suggestions;
-    }
-
-    public bool TryLoadSuggestions(ref List<string> suggestions, string prefix)
-    {
-        if (suggestions == null)
-            return false;
-
-        var current = _root;
-        foreach (var c in prefix)
-        {
-            if (!current.Children.ContainsKey(c))
+            var node = _root;
+            foreach (var c in prefix)
             {
+                if (!node.Children.ContainsKey(c))
+                {
+                    return null;
+                }
+
+                node = node.Children[c];
+            }
+
+            return GetSuggestions(node);
+        }
+
+        public List<string> GetSuggestions(TrieNode node)
+        {
+            var suggestions = new List<string>();
+            var current = node;
+
+            _searchStack.Push(current);
+
+            while (_searchStack.Count > 0)
+            {
+                current = _searchStack.Pop();
+                if (current.Data != null)
+                    suggestions.Add(current.Data);
+
+                if (current.Children.Count > 0)
+                    foreach (var child in current.Children.Values)
+                        _searchStack.Push(child);
+            }
+
+            _searchStack.Clear();
+
+            return suggestions;
+        }
+
+        public bool TryLoadSuggestions(ref List<string> suggestions, string prefix)
+        {
+            if (suggestions == null)
                 return false;
-            }
 
-            current = current.Children[c];
-        }
-
-        suggestions.Clear();
-        _searchStack.Push(current);
-
-        while (_searchStack.Count > 0)
-        {
-            current = _searchStack.Pop();
-            if (current.Data != null)
-                suggestions.Add(current.Data);
-
-            if (current.Children.Count > 0)
-                foreach (var child in current.Children.Values)
-                    _searchStack.Push(child);
-        }
-        _searchStack.Clear();
-
-        return suggestions.Count > 0 ? true : false;
-    }
-
-    public bool TryLoadSuggestionNodes(ref List<TrieNode> nodes, string prefix)
-    {
-        var current = _root;
-        foreach (var c in prefix)
-        {
-            if (!current.Children.ContainsKey(c))
+            var current = _root;
+            foreach (var c in prefix)
             {
-                return false;
+                if (!current.Children.ContainsKey(c))
+                {
+                    return false;
+                }
+
+                current = current.Children[c];
             }
 
-            current = current.Children[c];
+            suggestions.Clear();
+            _searchStack.Push(current);
+
+            while (_searchStack.Count > 0)
+            {
+                current = _searchStack.Pop();
+                if (current.Data != null)
+                    suggestions.Add(current.Data);
+
+                if (current.Children.Count > 0)
+                    foreach (var child in current.Children.Values)
+                        _searchStack.Push(child);
+            }
+            _searchStack.Clear();
+
+            return suggestions.Count > 0 ? true : false;
         }
 
-        nodes.Clear();
-        _searchStack.Push(current);
-
-        while (_searchStack.Count > 0)
+        public bool TryLoadSuggestionNodes(ref List<TrieNode> nodes, string prefix)
         {
-            current = _searchStack.Pop();
-            if (current.Data != null)
-                nodes.Add(current);
+            var current = _root;
+            foreach (var c in prefix)
+            {
+                if (!current.Children.ContainsKey(c))
+                {
+                    return false;
+                }
 
-            if (current.Children.Count > 0)
-                foreach (var child in current.Children.Values)
-                    _searchStack.Push(child);
+                current = current.Children[c];
+            }
+
+            nodes.Clear();
+            _searchStack.Push(current);
+
+            while (_searchStack.Count > 0)
+            {
+                current = _searchStack.Pop();
+                if (current.Data != null)
+                    nodes.Add(current);
+
+                if (current.Children.Count > 0)
+                    foreach (var child in current.Children.Values)
+                        _searchStack.Push(child);
+            }
+            _searchStack.Clear();
+
+            return nodes.Count > 0 ? true : false;
         }
-        _searchStack.Clear();
-
-        return nodes.Count > 0 ? true : false;
     }
 }

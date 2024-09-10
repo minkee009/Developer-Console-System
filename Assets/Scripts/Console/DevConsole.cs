@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace DeveloperConsole
+namespace SPTr.DeveloperConsole
 {
-
     [Flags]
     public enum ExecFlag
     {
@@ -59,11 +58,11 @@ namespace DeveloperConsole
 
         #region Delegate
 
-        public Action VoidAction { get; set; }
-        public Action<bool> BoolAction { get; set; }
-        public Action<int> IntAction { get; set; }
-        public Action<float> FloatAction { get; set; }
-        public Action<string> StringAction { get; set; }
+        public Action VoidAction { get; private set; }
+        public Action<bool> BoolAction { get; private set; }
+        public Action<int> IntAction { get; private set; }
+        public Action<float> FloatAction { get; private set; }
+        public Action<string> StringAction { get; private set; }
 
         public Func<string> TrackedValue { get; private set; }
 
@@ -136,7 +135,7 @@ namespace DeveloperConsole
         #endregion
 
         /// <summary>
-        /// 명령어를 실행 시킵니다. (일반 사용자용)
+        /// 명령어를 실행 시킵니다.
         /// </summary>
         /// <param name="param"></param>
         public void Invoke(object param)
@@ -258,7 +257,7 @@ namespace DeveloperConsole
                     if (!useConCmd)
                         continue;
 
-                    MethodInfo[] methods = t.GetMethods(BindingFlags.NonPublic| BindingFlags.Public | BindingFlags.Static);
+                    MethodInfo[] methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 
                     foreach(MethodInfo m in methods)
                     {
@@ -366,6 +365,7 @@ namespace DeveloperConsole
             if (validCommand)
                 AddCommand(command);
         }
+
         #endregion
 
         #region Using Console Command
@@ -391,7 +391,7 @@ namespace DeveloperConsole
 
             return cmd != null;
         }
-        public static bool ExcuteCCmd(ConsoleCommand cmd, string param)
+        public static bool ExecuteCommand(ConsoleCommand cmd, string param)
         {
             if (cmd.Flag != ExecFlag.NONE && (cmd.Flag & _currentFlags) == 0)
             {
