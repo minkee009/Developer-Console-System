@@ -117,7 +117,7 @@ namespace SPTr.UI
         {
             TextField.text = CurrentSuggestionText.text;
             TextField.caretPosition = CurrentSuggestionText.text.Length;
-            UpdateAutocomplete();
+            UpdateSuggestions();
         }
 #endif
         }
