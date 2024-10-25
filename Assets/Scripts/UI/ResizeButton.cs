@@ -20,6 +20,7 @@ namespace SPTr.UI
         private Vector2 _internalPosition;
         private Vector2 _clickOffset;
         private RectTransform _rect;
+        private Vector2 _currentCanvasResolution => ParentCanvas.renderingDisplaySize / ParentCanvas.scaleFactor;
 
         private void Awake()
         {
@@ -33,8 +34,10 @@ namespace SPTr.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            ResizeableRect.SetAsLastSibling();
             _clickOffset = new Vector2(_rect.position.x, _rect.position.y) - eventData.position;
         }
+
 
         public void OnDrag(PointerEventData eventData)
         {
@@ -42,16 +45,22 @@ namespace SPTr.UI
             ClampRectSize();
         }
 
+
         public void ResizeRect(PointerEventData eventdata)
         {
             _internalPosition = eventdata.position + _clickOffset;
             ResizeableRect.sizeDelta = new Vector2(_internalPosition.x - ResizeableRect.position.x, ResizeableRect.position.y - _internalPosition.y) / ParentCanvas.scaleFactor;
-            ClampRectSize();
         }
 
         public void ClampRectSize()
         {
-            ResizeableRect.sizeDelta = new Vector2(Mathf.Max(minWidth, ResizeableRect.sizeDelta.x), Mathf.Max(minHeight, ResizeableRect.sizeDelta.y));
+            var maxSizeDeltaX = (_currentCanvasResolution.x - ResizeableRect.anchoredPosition.x);
+            var maxSizeDeltaY = (_currentCanvasResolution.y + ResizeableRect.anchoredPosition.y);
+
+            var clampedSizeDeltaX = Mathf.Min(maxSizeDeltaX, Mathf.Max(minWidth, ResizeableRect.sizeDelta.x));
+            var clampedSizeDeltaY = Mathf.Min(maxSizeDeltaY, Mathf.Max(minHeight, ResizeableRect.sizeDelta.y));
+
+            ResizeableRect.sizeDelta = new Vector2(clampedSizeDeltaX, clampedSizeDeltaY);
         }
 
     }

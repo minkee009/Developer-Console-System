@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using SPTr.CustomCollections;
 using SPTr.DeveloperConsole;
 using System;
+using Unity.VisualScripting;
+using System.Collections;
+using System.IO;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -139,6 +142,26 @@ namespace SPTr.UI
             instance.ConsoleLog.text += logText;
         }
 
+        public void SelectSuggestionFromIndex(int idx)
+        {
+            TextField.text = _suggestions[idx] + " ";
+            UpdateSuggestions();
+
+            TextField.ActivateInputField();
+
+            StartCoroutine(MoveCaretToEnd());
+        }
+
+        public IEnumerator MoveCaretToEnd()
+        {
+            yield return null;
+
+            TextField.caretPosition = TextField.text.Length;
+            TextField.selectionAnchorPosition = TextField.caretPosition;
+            TextField.selectionFocusPosition = TextField.caretPosition;
+            TextField.ForceLabelUpdate();
+        }
+
         public void UpdateSuggestions()
         {
             _sb.Clear();
@@ -229,12 +252,18 @@ namespace SPTr.UI
                         value = value.ToLower();
                         initValue = initValue.ToLower();
                     }
-                    Debug.Log($"<color=#9FF781>[ConsoleCommand] [{cmd.Name}{value}]</color>{initValue}{desc}");
+                    Debug.Log($"<color=#9FF781>[{cmd.Name}{value}]</color>{initValue}{desc}");
                     return;
                 }
                 else if (cmd.Description != "" && cmd.Description[0] != '/')
                 {
                     Debug.Log($"<color={COLOR_INFO}>{cmd.Description}</color>");
+                }
+                else if (cmd.Flag != ExecFlag.NONE
+                    && (cmd.Flag & DevConsole.CurrentFlags) == 0)
+                {
+                    Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
+                    return;
                 }
                 DevConsole.ExecuteCommand(cmd, null);
             }
@@ -256,7 +285,6 @@ namespace SPTr.UI
 
                 if (cmd.Type == DevConObjType.isString)
                     cmdLine = string.Join(" ", args);
-
 
                 if (!DevConsole.ExecuteCommand(cmd, cmdLine)
                     && cmd.Flag != ExecFlag.NONE
