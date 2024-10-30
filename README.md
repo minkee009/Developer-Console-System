@@ -2,7 +2,7 @@
  
  유니티 개발자용 콘솔 시스템
 
-[![Video Label](http://img.youtube.com/vi/CdtEuDo4UVM/0.jpg)](https://www.youtube.com/watch?v=CdtEuDo4UVM)
+[![Video Label](http://img.youtube.com/vi/7vg73NF0uWw/0.jpg)](https://www.youtube.com/watch?v=7vg73NF0uWw)
 
 ## 개요
 유니티 엔진에서 사용할 수 있는 콘솔 시스템입니다
