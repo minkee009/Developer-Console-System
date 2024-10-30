@@ -407,7 +407,14 @@ namespace SPTr.DeveloperConsole
             switch (cmd.Type)
             {
                 case DevConObjType.isVoid:
-                    cmd.VoidAction.Invoke();
+                    if (param != string.Empty)
+                    {
+                        errorMSG = "인자를 사용하지 않는 명령어입니다.";
+                    }
+                    else
+                    {
+                        cmd.VoidAction.Invoke();
+                    }
                     break;
                 case DevConObjType.isBool:
                     if (bool.TryParse(param, out boolParam))
@@ -457,6 +464,89 @@ namespace SPTr.DeveloperConsole
             if (errorMSG != null)
             {
                 System.Console.WriteLine($"명령어가 실행되지 않았습니다. {errorMSG}");
+                return false;
+            }
+            else
+            {
+                OnCmdExecuted?.Invoke(cmd);
+                return true;
+            }
+        }
+
+        public static bool ExecuteCommand(ConsoleCommand cmd, string param, out string errorMSG)
+        {
+            errorMSG = string.Empty;
+
+            if (cmd.Flag != ExecFlag.NONE && (cmd.Flag & _currentFlags) == 0)
+            {
+                errorMSG = $"{cmd.Flag} 플래그가 켜져있지 않습니다.";
+                return false;
+            }
+
+            bool boolParam = false;
+            int intParam = 0;
+            float floatParam = 0.0f;
+
+            switch (cmd.Type)
+            {
+                case DevConObjType.isVoid:
+                    if (param != string.Empty)
+                    {
+                        errorMSG = "인자를 사용하지 않는 명령어입니다.";
+                    }
+                    else
+                    {
+                        cmd.VoidAction.Invoke();
+                    }
+                    break;
+                case DevConObjType.isBool:
+                    if (bool.TryParse(param, out boolParam))
+                    {
+                        cmd.BoolAction.Invoke(boolParam);
+                    }
+                    else if (int.TryParse(param, out intParam))
+                    {
+                        cmd.BoolAction.Invoke(intParam > 0);
+                    }
+                    else
+                    {
+                        errorMSG = "인자를 0,1 혹은 true,false로 사용해주세요";
+                    }
+                    break;
+                case DevConObjType.isInt:
+                    if (int.TryParse(param, out intParam))
+                    {
+                        cmd.IntAction.Invoke(intParam);
+                    }
+                    else
+                    {
+                        errorMSG = "인자에 숫자를 사용해주세요";
+                    }
+                    break;
+                case DevConObjType.isFloat:
+                    if (float.TryParse(param, out floatParam))
+                    {
+                        cmd.FloatAction.Invoke(floatParam);
+                    }
+                    else
+                    {
+                        errorMSG = "인자에 숫자를 사용해주세요";
+                    }
+                    break;
+                case DevConObjType.isString:
+                    if (param != "")
+                    {
+                        cmd.StringAction.Invoke(param);
+                    }
+                    else
+                    {
+                        errorMSG = "인자를 입력해주세요";
+                    }
+                    break;
+            }
+            if (errorMSG != string.Empty)
+            {
+                errorMSG = ($"명령어가 실행되지 않았습니다. {errorMSG}");
                 return false;
             }
             else

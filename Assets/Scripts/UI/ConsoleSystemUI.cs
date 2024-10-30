@@ -8,6 +8,7 @@ using System;
 using Unity.VisualScripting;
 using System.Collections;
 using System.IO;
+using SPTr.CMD;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -76,6 +77,8 @@ namespace SPTr.UI
                 Application.logMessageReceived += HandleLog;
 
                 DevConsole.AddAllCommandInAssembly();
+
+                BindCMD.OnExcuteBinding += UpdateSuggestions;
             }
             else
             {
@@ -123,6 +126,12 @@ namespace SPTr.UI
             UpdateSuggestions();
         }
 #endif
+        }
+
+        public void LateUpdate()
+        {
+            if(!TextField.isFocused)
+                BindCMD.InvokeBinding();
         }
 
         public void AddToSuggestionTree(ConsoleCommand cmd)
@@ -265,7 +274,7 @@ namespace SPTr.UI
                     Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
                     return;
                 }
-                DevConsole.ExecuteCommand(cmd, null);
+                DevConsole.ExecuteCommand(cmd, string.Empty);
             }
             else if (args.Length > 1
                 && cmd.Type != DevConObjType.isString
@@ -300,6 +309,7 @@ namespace SPTr.UI
             DevConsole.OnCmdAdded -= AddToSuggestionTree;
             DevConsole.OnCmdRemoved -= RemoveToSuggestionTree;
             Application.logMessageReceived -= HandleLog;
+            BindCMD.OnExcuteBinding -= UpdateSuggestions;
         }
     }
 }
