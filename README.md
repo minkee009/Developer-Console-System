@@ -81,7 +81,7 @@ static ConsoleCommand cmd_test = new ConsoleCommand("cmd_test", (bool value) => 
  > info_execflags
 - 콘솔시스템에 사용되는 플래그의 정보를 출력합니다.
 
-### 4. Flag Cheats
+### 4. Flag - Cheats
  > flag_cheats <true/false>
 - 콘솔시스템의 치트플래그를 활성/비활성화 합니다.
 
