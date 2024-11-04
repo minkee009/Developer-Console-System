@@ -65,3 +65,27 @@ static bool TestBoolean = true;
 
 static ConsoleCommand cmd_test = new ConsoleCommand("cmd_test", (bool value) => TestBoolean = value, "/설명 감추기").SetTrackingValue(() => TestBoolean.ToString());
 ```
+
+## 내장 명령어
+콘솔 시스템에는 기본적으로 사용할 수 있는 명령어가 내장되어 있습니다.
+
+### 1. Help
+ > help <명령어>
+- 명령어의 설명을 출력합니다.
+
+### 2. Clear
+ > clear
+- 콘솔로그를 전부 지웁니다.
+
+### 3. Info - Execflags
+ > info_execflags
+- 콘솔시스템에 사용되는 플래그의 정보를 출력합니다.
+
+### 4. Flag Cheats
+ > flag_cheats <true/false>
+- 콘솔시스템의 치트플래그를 활성/비활성화 합니다.
+
+### 5. Bind
+ > bind <키> <명령어 + 인자>
+- 사용자가 지정한 키에 명령어를 할당합니다.
+- 키에 할당된 명령어를 해제시키려면 bind <키> ""를 입력해야 합니다. ex) bind g ""
