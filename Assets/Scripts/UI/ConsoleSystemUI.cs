@@ -9,6 +9,9 @@ using Unity.VisualScripting;
 using System.Collections;
 using System.IO;
 using SPTr.CMD;
+using System.Text.RegularExpressions;
+
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -226,6 +229,8 @@ namespace SPTr.UI
         {
             if (TextField.text == "")
                 return;
+
+            TextField.text = Regex.Replace(TextField.text, @"<[^>]+>", string.Empty);
 
             Debug.Log($"> {TextField.text}");
 

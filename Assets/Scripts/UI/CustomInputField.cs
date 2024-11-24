@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine.UIElements;
 
 public class CustomInputField : InputField
 {
@@ -19,6 +22,13 @@ public class CustomInputField : InputField
             return;
         base.OnPointerClick(eventData);
         StartCoroutine(SetCaretPositionNextFrame(eventData));
+    }
+
+    public override void OnUpdateSelected(BaseEventData eventData)
+    {
+        base.OnUpdateSelected(eventData);
+
+        GUIUtility.systemCopyBuffer = Regex.Replace(GUIUtility.systemCopyBuffer, @"<[^>]+>", string.Empty);
     }
 
     private IEnumerator SetCaretPositionNextFrame(PointerEventData eventData)
