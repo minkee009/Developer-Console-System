@@ -96,7 +96,7 @@ namespace SPTr.Demo
             Debug.Log($"<color={COLOR_ERROR}>파괴할 강체를 찾지 못했습니다.</color>");
         }
 
-        [ConCmd("rb_setmass", "/시점이 향한 곳에 있는 강체의 질량 정보를 수정합니다.", ExecFlag.CHEAT)]
+        [ConCmd("rb_setmass", "시점이 향한 곳에 있는 강체의 질량 정보를 수정합니다.", ExecFlag.CHEAT)]
         public static void SetMass(float mass)
         {
             if (!TryGetMaincam(out Camera useCam))

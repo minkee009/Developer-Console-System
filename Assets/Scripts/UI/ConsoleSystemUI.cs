@@ -259,13 +259,6 @@ namespace SPTr.UI
                     string value = cmd.TrackedValue != null ? $" = {cmd.TrackedValue.Invoke()}" : string.Empty;
                     string initValue = (cmd.InitValue != null && cmd.InitValue != cmd.TrackedValue.Invoke()) ? $" <color={COLOR_VALUE}>( init = {cmd.InitValue} )</color>" : string.Empty;
 
-                    if(cmd.Flag != ExecFlag.NONE
-                    && (cmd.Flag & DevConsole.CurrentFlags) == 0)
-                    {
-                        Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
-                        return;
-                    }
-
                     if (cmd.Type == DevConObjType.isBool)
                     {
                         value = value.ToLower();
