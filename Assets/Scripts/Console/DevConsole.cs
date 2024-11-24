@@ -564,7 +564,7 @@ namespace SPTr.DeveloperConsole
         private static ExecFlag _currentFlags = ExecFlag.NONE | ExecFlag.DEBUG;
 
         private static ConsoleCommand info_execflags = new ConsoleCommand("info_execflags", () => { },
-            $"실행 플래그 종류 :: \n {ExecFlag.NONE} : 플래그 없음, 플래그 없는 콘솔변수와 콘솔커맨드를 위한 분류용 기본 플래그 \n {ExecFlag.CHEAT} : 치트용 플래그 \n {ExecFlag.DEBUG} : 디버그 버전용 플래그 \n {ExecFlag.CUSTOM} : 개발자 커스텀 플래그");
+            $"실행 플래그 종류 :: \n {ExecFlag.NONE} : 플래그 없음, 플래그 없는 콘솔 명령어를 위한 분류용 기본 플래그 \n {ExecFlag.CHEAT} : 치트용 플래그 \n {ExecFlag.DEBUG} : 디버그 버전용 플래그 \n {ExecFlag.CUSTOM} : 개발자 커스텀 플래그");
 
         private static ConsoleCommand flag_cheats = new ConsoleCommand("flag_cheats",
         (bool value) =>

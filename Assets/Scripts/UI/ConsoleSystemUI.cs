@@ -22,7 +22,7 @@ namespace SPTr.UI
 
         public RectTransform ConsoleWindow;
         public InputField TextField;
-        public Text ConsoleLog;
+        public InputField ConsoleLog;
         public Text SuggestionTexts;
         public Text CurrentSuggestionText;
         public Image SuggestionsPanel;
@@ -56,9 +56,9 @@ namespace SPTr.UI
                 }
                 else
                 {
-                    Debug.Log($"<color={COLOR_ERROR}>해당하는 이름의 콘솔 오브젝트가 존재하지 않습니다.</color>");
+                    Debug.Log($"<color={COLOR_ERROR}>해당하는 이름의 콘솔 명령어가 존재하지 않습니다.</color>");
                 }
-            }, "콘솔 오브젝트의 설명을 출력합니다. \n- help <콘솔 오브젝트>");
+            }, "콘솔 명령어의 설명을 출력합니다. \n- help <콘솔 명령어>");
 
         public static ConsoleCommand clear = new ConsoleCommand("clear", () => { instance.ConsoleLog.text = ""; instance._lastInputText.Clear(); },
             "/콘솔 로그를 전부 지웁니다.");
@@ -163,12 +163,15 @@ namespace SPTr.UI
 
         public IEnumerator MoveCaretToEnd()
         {
+            Color selectionColor = TextField.selectionColor;
+            TextField.selectionColor = new Color { a = 0 };
             yield return null;
 
             TextField.caretPosition = TextField.text.Length;
             TextField.selectionAnchorPosition = TextField.caretPosition;
             TextField.selectionFocusPosition = TextField.caretPosition;
             TextField.ForceLabelUpdate();
+            TextField.selectionColor = selectionColor;
         }
 
         public void UpdateSuggestions()
@@ -255,6 +258,13 @@ namespace SPTr.UI
                     string desc = (cmd.Description != "" && cmd.Description[0] != '/') ? $", <color={COLOR_INFO}>{cmd.Description}</color>" : string.Empty;
                     string value = cmd.TrackedValue != null ? $" = {cmd.TrackedValue.Invoke()}" : string.Empty;
                     string initValue = (cmd.InitValue != null && cmd.InitValue != cmd.TrackedValue.Invoke()) ? $" <color={COLOR_VALUE}>( init = {cmd.InitValue} )</color>" : string.Empty;
+
+                    if(cmd.Flag != ExecFlag.NONE
+                    && (cmd.Flag & DevConsole.CurrentFlags) == 0)
+                    {
+                        Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
+                        return;
+                    }
 
                     if (cmd.Type == DevConObjType.isBool)
                     {
