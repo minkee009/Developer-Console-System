@@ -37,18 +37,17 @@ namespace SPTr.CMD
             public Func<bool> binding;
             public string cmdName;
             public string cmdArguments;
-
         }
 
         public static ConsoleCommand bind = new ConsoleCommand("bind",
-            (string arguments) =>
+            (arguments) =>
             {
                 string replaceText = arguments.Replace("\"", "");
                 string[] splitText = replaceText.Split(' ');
 #if ENABLE_INPUT_SYSTEM
-                bool isValidKey = TryConvertStringToKey(splitText[0], out Key currentKey);
+                bool isValidKey = Enum.TryParse(splitText[0], true, out Key currentKey);
 #else
-                bool isValidKey = TryConvertStringToKey(splitText[0], out KeyCode currentKey);
+                bool isValidKey = Enum.TryParse(splitText[0], true, out KeyCode currentKey);
 #endif
                 bool isCheckBinding = splitText.Length < 2 || (splitText[1] == string.Empty);
                 bool isVoidAction = splitText.Length < 3;
@@ -127,17 +126,6 @@ namespace SPTr.CMD
             }
         }
 
-#if ENABLE_INPUT_SYSTEM
-        public static bool TryConvertStringToKey(string keyString,out Key key)
-        {
-            return Enum.TryParse(keyString, true, out key);
-        }
-#else
-        public static bool TryConvertStringToKey(string keyString,out KeyCode key)
-        {
-            return Enum.TryParse(keyString, true, out key);
-        }
-#endif
         private static void PrintErrorMSG(string msg)
         {
             Debug.Log($"<color={COLOR_ERROR}>{msg}</color>");

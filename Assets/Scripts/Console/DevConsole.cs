@@ -31,8 +31,8 @@ namespace SPTr.DeveloperConsole
         public string Description { get; }
 
         /// <summary>
-        /// 실행 플래그는 하나만 초기화시켜야 합니다.
-        /// ex) flag = ExecFlag.CHEAT (O) , flag = ExecFlag.CHEAT | ExecFlag.CUSTOM (X)
+        /// 실행 플래그는 하나의 플래그만 리턴해야 합니다.
+        /// ex) Flag => ExecFlag.CHEAT (O) , Flag => ExecFlag.CHEAT | ExecFlag.CUSTOM (X)
         /// </summary>
         public ExecFlag Flag { get; }
     }
