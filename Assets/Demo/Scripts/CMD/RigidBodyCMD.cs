@@ -15,12 +15,17 @@ namespace SPTr.Demo
         public const string COLOR_INFO = "#F7BE81";
         public const string COLOR_VALUE = "#F5DA81";
 
-        [ConCmd("rb_gravity", "강체의 전역 중력값")]
-        public static void SetGravity(float force) => Physics.gravity = Vector3.down * force;
+        [ConCmd("rb_gravity", "강체의 전역 중력값", ExecFlag.NONE, "_yGravity")]
+        public static void SetGravity(float force) 
+        { 
+            Physics.gravity = Vector3.down * force; 
+            _yGravity = force; 
+        } 
 
         public static bool GlobalInterPolate = false;
 
         private static Camera _mainCam;
+        private static float _yGravity = -Physics.gravity.y;
 
         [ConCmd("rb_create_box", "시점이 향한 곳에 상자를 생성합니다. \n- rb_create_box <x 스케일>, <y 스케일>, <z 스케일>", ExecFlag.CHEAT)]
         public static void CreateBox(string optArg)

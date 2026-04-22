@@ -243,11 +243,12 @@ namespace SPTr.DeveloperConsole
 
                     foreach (FieldInfo f in fields)
                     {
-                        if (f.FieldType == typeof(ConsoleCommand) && !consoleCmds.ContainsKey(f.Name))
+                        if (f.FieldType == typeof(ConsoleCommand))
                         {
-                            AddCommand((ConsoleCommand)f.GetValue(null));
+                            var cmd = (ConsoleCommand)f.GetValue(null);
+                            if (cmd != null && !consoleCmds.ContainsKey(cmd.Name))
+                                AddCommand(cmd);
                         }
-
                         else if (useConCmd && Attribute.GetCustomAttribute(f, typeof(ConCmd)) is ConCmd cmdInfo && !consoleCmds.ContainsKey(cmdInfo.name))
                         {
                             AddCommandWithConCmd(f, cmdInfo);
@@ -373,104 +374,27 @@ namespace SPTr.DeveloperConsole
         {
             ConsoleCommand cmd;
 
-            try
+            _consoleCmds.TryGetValue(name, out cmd);
+
+            if (cmd == null)
             {
-                cmd = _consoleCmds[name];
-            }
-            catch (KeyNotFoundException e)
-            {
-                System.Console.WriteLine($"{e} : 콘솔명령어가 존재하지 않습니다.");
+                System.Console.WriteLine($"콘솔명령어가 존재하지 않습니다.");
                 return null;
             }
-
             return cmd;
         }
+
         public static bool TryFindCommand(string name, out ConsoleCommand cmd)
         {
-            cmd = FindCommand(name);
-
-            return cmd != null;
+            return _consoleCmds.TryGetValue(name, out cmd);
         }
+
         public static bool ExecuteCommand(ConsoleCommand cmd, string param)
         {
-            if (cmd.Flag != ExecFlag.NONE && (cmd.Flag & _currentFlags) == 0)
-            {
-                System.Console.WriteLine($"{cmd.Flag} 플래그가 켜져있지 않습니다.");
-                return false;
-            }
-
-            bool boolParam = false;
-            int intParam = 0;
-            float floatParam = 0.0f;
-
-            string errorMSG = null;
-            switch (cmd.Type)
-            {
-                case DevConObjType.isVoid:
-                    if (param != string.Empty)
-                    {
-                        errorMSG = "인자를 사용하지 않는 명령어입니다.";
-                    }
-                    else
-                    {
-                        cmd.VoidAction.Invoke();
-                    }
-                    break;
-                case DevConObjType.isBool:
-                    if (bool.TryParse(param, out boolParam))
-                    {
-                        cmd.BoolAction.Invoke(boolParam);
-                    }
-                    else if (int.TryParse(param, out intParam))
-                    {
-                        cmd.BoolAction.Invoke(intParam > 0);
-                    }
-                    else
-                    {
-                        errorMSG = "인자를 0,1 혹은 true,false로 사용해주세요";
-                    }
-                    break;
-                case DevConObjType.isInt:
-                    if (int.TryParse(param, out intParam))
-                    {
-                        cmd.IntAction.Invoke(intParam);
-                    }
-                    else
-                    {
-                        errorMSG = "인자에 숫자를 사용해주세요";
-                    }
-                    break;
-                case DevConObjType.isFloat:
-                    if (float.TryParse(param, out floatParam))
-                    {
-                        cmd.FloatAction.Invoke(floatParam);
-                    }
-                    else
-                    {
-                        errorMSG = "인자에 숫자를 사용해주세요";
-                    }
-                    break;
-                case DevConObjType.isString:
-                    if (param != "")
-                    {
-                        cmd.StringAction.Invoke(param);
-                    }
-                    else
-                    {
-                        errorMSG = "인자를 입력해주세요";
-                    }
-                    break;
-            }
-            if (errorMSG != null)
-            {
+            bool result = ExecuteCommand(cmd, param, out string errorMSG);
+            if(errorMSG != null)
                 System.Console.WriteLine($"명령어가 실행되지 않았습니다. {errorMSG}");
-                return false;
-            }
-            else
-            {
-                OnCmdExecuted?.Invoke(cmd);
-                return true;
-            }
+            return result;
         }
 
         public static bool ExecuteCommand(ConsoleCommand cmd, string param, out string errorMSG)

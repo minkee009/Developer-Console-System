@@ -50,6 +50,12 @@ namespace SPTr.UI
         private List<string> _suggestions = new List<string>();
         private StringBuilder _sb = new StringBuilder();
 
+        public static ConsoleCommand echo = new ConsoleCommand("echo",
+            (string args) =>
+            {
+                Debug.Log(args);
+            }, "콘솔에 문자열을 출력합니다.");
+
         public static ConsoleCommand help = new ConsoleCommand("help",
             (string args) =>
             {
@@ -64,7 +70,7 @@ namespace SPTr.UI
                 var cmd = DevConsole.FindCommand(split[0]);
                 if (cmd != null)
                 {
-                    if (cmd.Description == null || cmd.Description.Length > 1)
+                    if (cmd.Description == null || cmd.Description.Length <= 1)
                     {
                         Debug.Log($"<color={COLOR_ERROR}>명령어의 설명이 존재하지 않습니다.</color>");
                         return;
