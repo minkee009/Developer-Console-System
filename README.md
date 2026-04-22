@@ -69,23 +69,34 @@ static ConsoleCommand cmd_test = new ConsoleCommand("cmd_test", (bool value) => 
 ## 내장 명령어
 콘솔 시스템에는 기본적으로 사용할 수 있는 명령어가 내장되어 있습니다.
 
-### 1. Help
+### 1. Echo
+ > echo <문자열>
+- 원하는 문자열을 출력합니다.
+
+### 2. Help
  > help <명령어>
 - 명령어의 설명을 출력합니다.
 
-### 2. Clear
+### 3. Clear
  > clear
 - 콘솔로그를 전부 지웁니다.
 
-### 3. Info - Execflags
+### 4. Info - Execflags
  > info_execflags
 - 콘솔시스템에 사용되는 플래그의 정보를 출력합니다.
 
-### 4. Flag - Cheats
+### 5. Flag - Cheats
  > flag_cheats <true/false>
 - 콘솔시스템의 치트플래그를 활성/비활성화 합니다.
 
-### 5. Bind
+### 6. Bind
  > bind <키> <명령어 + 인자>
-- 사용자가 지정한 키에 명령어를 할당합니다.
+- 지정한 키에 명령어를 할당합니다.
 - 키에 할당된 명령어를 해제시키려면 bind <키> ""를 입력해야 합니다. ex) bind g ""
+
+### 7. BindToggle
+ > bindtoggle <키> <Tracking값이 있는 Boolean 명령어>
+
+ > bindtoggle <키> <명령어> <인자1> <인자2> ... <인자N>
+- 지정한 키에 토글이 가능한 명령어를 할당합니다.
+- 적용할 인자가 복잡한 형식(띄어쓰기가 있는)인 경우 인자를 큰 따옴표 ""로 묶어 입력해야 합니다. ex) bindtoggle g echo "hello, world!" "test log!!"
