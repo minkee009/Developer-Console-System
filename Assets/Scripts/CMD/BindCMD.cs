@@ -161,12 +161,11 @@ namespace SPTr.CMD
                     if (splitText.Length == 2 && 
                         cmd.Type == DevConObjType.isBool && 
                         cmd.TrackedValue != null &&
-                        cmd.InitValue != null &&
-                        bool.TryParse(cmd.InitValue,out bool initResult))
+                        bool.TryParse(cmd.TrackedValue.Invoke() , out bool trackedResult))
                     {
-                        string[] autoToggleValues = initResult
-                            ? new[] { "true", "false" }
-                            : new[] { "false", "true" };
+                        string[] autoToggleValues = trackedResult
+                            ? new[] { "false", "true" }
+                            : new[] { "true", "false" };
 
                         if (_bindingDic.ContainsKey(currentKey))
                         {
@@ -189,7 +188,7 @@ namespace SPTr.CMD
                     }
                     else if(splitText.Length == 2)
                     {
-                        PrintErrorMSG("이 종류의 명령어는 bindtoggle 시 2개 이상의 명시된 값이 필요합니다.");
+                        PrintErrorMSG($"이 종류의 명령어는 bindtoggle 시 2개 이상의 명시된 값이 필요합니다. tracking : {cmd.TrackedValue != null} / init : {cmd.InitValue != null}");
                         return;
                     }
 
