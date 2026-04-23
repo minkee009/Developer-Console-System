@@ -188,7 +188,7 @@ namespace SPTr.CMD
                     }
                     else if(splitText.Length == 2)
                     {
-                        PrintErrorMSG($"이 종류의 명령어는 bindtoggle 시 2개 이상의 명시된 값이 필요합니다. tracking : {cmd.TrackedValue != null} / init : {cmd.InitValue != null}");
+                        PrintErrorMSG($"이 종류의 명령어는 bindtoggle 시 2개 이상의 명시된 값이 필요합니다.");
                         return;
                     }
 
