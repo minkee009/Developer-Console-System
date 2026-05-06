@@ -1,6 +1,7 @@
 ﻿using SPTr.DeveloperConsole;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ namespace SPTr.CMD
         public const string COLOR_ERROR = "#F78181";
         public const string COLOR_INFO = "#F7BE81";
         public const string COLOR_VALUE = "#F5DA81";
+
+        private const string BINDING_CFG_NAME = "binding";
 
         public static IReadOnlyCollection<BindingInfo> BindingList => _bindingDic.Values;
 
@@ -64,7 +67,67 @@ namespace SPTr.CMD
 
                 return _toggleArguments[_toggleCount++ % _toggleArguments.Length];
             }
+
+            public string ToCfgLine(string keyName)
+            {
+                if (isToggle && _toggleArguments != null && _toggleArguments.Length >= 2)
+                {
+                    var quotedArgs = _toggleArguments.Select(arg =>
+                        arg.Contains(' ') ? $"\"{arg}\"" : arg);
+                    return $"bindtoggle {keyName} {cmdName} {string.Join(" ", quotedArgs)}";
+                }
+
+                string args = string.IsNullOrEmpty(cmdArguments) ? "" : $" {cmdArguments}";
+                return $"bind {keyName} {cmdName}{args}";
+            }
         }
+
+        /// <summary>
+        /// 현재 바인딩 상태를 binding.cfg 로 저장합니다
+        /// </summary>
+        public static void SaveBindingCfg()
+        {
+            var lines = new List<string>();
+            foreach (var kv in _bindingDic)
+                lines.Add(kv.Value.ToCfgLine(kv.Key.ToString()));
+
+            ConsoleConfig.TryWriteConfig(BINDING_CFG_NAME, lines.ToArray());
+        }
+
+        /// <summary>
+        /// binding.cfg 를 읽어 bind / bindtoggle 커맨드를 재실행합니다.
+        /// DevConsole.AddAllCommandInAssembly() 이후에 호출해야 합니다.
+        /// </summary>
+        public static void LoadBindingCfg()
+        {
+            if (!ConsoleConfig.TryReadConfig(BINDING_CFG_NAME, out string[] lines))
+                return;
+
+            foreach (string raw in lines)
+            {
+                string line = raw.Trim();
+                if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
+                    continue;
+
+                int firstSpace = line.IndexOf(' ');
+                if (firstSpace < 0) continue;
+
+                string cmdName = line[..firstSpace];
+                string arguments = line[(firstSpace + 1)..].Trim();
+
+                if (cmdName.Equals("bind", StringComparison.OrdinalIgnoreCase) &&
+                    DevConsole.TryFindCommand("bind", out var bindCmd))
+                {
+                    DevConsole.ExecuteCommand(bindCmd, arguments);
+                }
+                else if (cmdName.Equals("bindtoggle", StringComparison.OrdinalIgnoreCase) &&
+                         DevConsole.TryFindCommand("bindtoggle", out var btCmd))
+                {
+                    DevConsole.ExecuteCommand(btCmd, arguments);
+                }
+            }
+        }
+
 
         public static ConsoleCommand bind = new ConsoleCommand("bind",
             (arguments) =>
@@ -124,7 +187,7 @@ namespace SPTr.CMD
                             Debug.Log($"{currentKey}키에 할당된 명령어가 없습니다.");
                 }
             }
-            , "사용자 입력에 명령어를 할당합니다.  \n- bind <사용자 키> <콘솔명령어>");
+            , "사용자 입력에 명령어를 할당합니다. \n- bind <사용자 키> <콘솔명령어> \n※ 인자가 없는 조회용 명령어는 바인딩에 적합하지 않습니다.");
 
         public static ConsoleCommand bindtoggle = new ConsoleCommand("bindtoggle", 
             (string arguments) =>
@@ -141,7 +204,7 @@ namespace SPTr.CMD
                 bool isNoCMD = splitText.Length == 1;
                 if (isNoCMD)
                 {
-                    PrintErrorMSG("명령어를 명시하지 않았습니다. \n바인딩된 사용자 키의 명령어가 무엇인지 파악하려면 bind <사용자 키>를 입력하세요.");
+                    PrintErrorMSG("사용자 키 혹은 명령어를 명시하지 않았습니다. \n바인딩된 사용자 키의 명령어가 무엇인지 파악하려면 bind <사용자 키>를 입력하세요.");
                     return;
                 }
 
@@ -226,11 +289,42 @@ namespace SPTr.CMD
                 else
                 {
                     //fallback 아님, 강제 종료
-                    PrintErrorMSG("키 값이 올바르지 않습니다.");
+                    PrintErrorMSG("사용자 키 값이 올바르지 않습니다.");
                     return;
                 }
 
             },  "사용자 입력에 toggle 형식의 명령어를 할당합니다. \n- bindtoggle <사용자 키> <bool 콘솔명령어> \n- bindtoggle <사용자 키> <콘솔명령어> <값1> <값2> ... <값N>");
+
+        public static ConsoleCommand unbind = new ConsoleCommand("unbind",
+            (string arguments) =>
+            {
+                if (arguments.Equals("all", StringComparison.OrdinalIgnoreCase))
+                {
+                    _bindingDic.Clear();
+                    ConsoleConfig.TryWriteConfig(BINDING_CFG_NAME, Array.Empty<string>());
+                    Debug.Log("모든 바인딩이 해제되었습니다.");
+                    return;
+                }
+
+#if ENABLE_INPUT_SYSTEM
+                if (!Enum.TryParse(arguments, true, out Key currentKey))
+#else
+                if (!Enum.TryParse(arguments, true, out KeyCode currentKey))
+#endif
+                {
+                    PrintErrorMSG("키 값이 올바르지 않습니다.");
+                    return;
+                }
+
+                if (!_bindingDic.ContainsKey(currentKey))
+                {
+                    PrintErrorMSG($"{currentKey}키에 할당된 바인딩이 없습니다.");
+                    return;
+                }
+
+                _bindingDic.Remove(currentKey);
+                Debug.Log($"{currentKey} 바인딩이 해제되었습니다.");
+            }, "/사용자 키 바인딩을 해제합니다. \n- unbind <사용자 키> \n- unbind all");
 
 
         public static void InvokeBinding()

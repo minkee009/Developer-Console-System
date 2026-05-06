@@ -11,6 +11,8 @@ using System.IO;
 using SPTr.CMD;
 using System.Text.RegularExpressions;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -21,6 +23,27 @@ namespace SPTr.UI
 {
     public class ConsoleSystemUI : MonoBehaviour
     {
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            UnityEditor.EditorApplication.delayCall += EnsureEventSystem;
+        }
+
+        static void EnsureEventSystem()
+        {
+            UnityEditor.EditorApplication.delayCall -= EnsureEventSystem;
+
+            if (FindFirstObjectByType<EventSystem>() != null)
+                return;
+
+            GameObject go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            go.AddComponent<StandaloneInputModule>();
+
+            UnityEditor.Undo.RegisterCreatedObjectUndo(go, "Create EventSystem");
+        }
+#endif
+
         public static ConsoleSystemUI instance;
 
         [Header("UI ¿ä¼Ò")]
@@ -106,7 +129,10 @@ namespace SPTr.UI
 
                 DevConsole.AddAllCommandInAssembly();
 
+                BindCMD.LoadBindingCfg();
                 BindCMD.OnExcuteBinding += UpdateSuggestions;
+
+                ExecCMD.ExecuteAutoExec();
             }
             else
             {
@@ -377,6 +403,7 @@ namespace SPTr.UI
             DevConsole.OnCmdRemoved -= RemoveToSuggestionTree;
             Application.logMessageReceived -= HandleLog;
             BindCMD.OnExcuteBinding -= UpdateSuggestions;
+            BindCMD.SaveBindingCfg();
         }
     }
 }
