@@ -10,11 +10,7 @@ namespace SPTr.DeveloperConsole
     class ConsoleConfig
     {
         public static readonly string CommonConfigPath = /* Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config"); */
-#if UNITY_EDITOR  // Unity 엔진에 맞게 수정함
             Path.Combine(Directory.GetParent(UnityEngine.Application.dataPath).FullName, "Config");
-#else
-            Path.Combine(Application.persistentDataPath, "Config");
-#endif
 
         public const string ConfigExtension = ".cfg";
 
