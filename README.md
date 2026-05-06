@@ -100,3 +100,38 @@ static ConsoleCommand cmd_test = new ConsoleCommand("cmd_test", (bool value) => 
  > bindtoggle <키> <명령어> <인자1> <인자2> ... <인자N>
 - 지정한 키에 토글이 가능한 명령어를 할당합니다.
 - 적용할 인자가 복잡한 형식(띄어쓰기가 있는)인 경우 인자를 큰 따옴표 ""로 묶어 입력해야 합니다. ex) bindtoggle g echo "hello, world!" "test log!!"
+
+### 8. Unbind
+ > unbind <키>
+
+ > unbind all
+ - 지정한 키의 bind 명령어를 해제합니다.
+ - all을 입력시 모든 bind를 해제합니다.
+
+### 9. Exec
+ > exec <콘솔 설정파일 이름>
+- .cfg의 내용을 전부 적용합니다. 에디터의 경우 프로젝트 최상단 경로에서 /Config, 빌드된 게임의 경우 게임내부 최상단 경로에서 /Config 폴더 내의 .cfg파일을 찾아 적용합니다.
+
+## Console Config (.cfg)
+개발자용 콘솔 시스템에는 콘솔 명령어를 순차적으로 적용할 수 있는 설정 파일을 만들 수 있습니다.
+
+예) user.cfg
+```
+flag_cheats true
+bind f echo "hello, world!"
+bind r clear
+bindtoggle t flag_cheats
+```
+예시문과 같이 개행으로 명령어를 구분시키며, 위에서부터 아래로 순차 적용시킵니다.
+
+이러한 .cfg 파일은 Exec 명령어의 설명과 같이 에디터와 빌드된 게임 폴더 내부의 최상단 경로에서 /Config 내에 위치시키면 인식됩니다.
+
+또한 유저가 직접 .cfg를 만들지 않더라도 개발자용 콘솔에는 기본적으로 아래와 같은 .cfg를 생성하고 적용시킵니다.
+
+1. binding.cfg
+- Bind 명령어를 실행한 경우 해당 실행 내용은 어플리케이션 종료 이후 전부 binding.cfg로 저장됩니다. 이후 [에디터 씬 플레이 / 어플리케이션이 구동]될 때 마다 한번씩 자동으로 적용됩니다.
+
+2. autoexec.cfg
+- 에디터든 게임이든 콘솔 시스템 UI가 최소 한번 이상 활성화된 경우 + autoexec.cfg가 없는 경우 자동생성됩니다. 이후 [에디터 씬 플레이 / 어플리케이션이 구동]될 때 마다 한번씩 자동으로 적용됩니다.
+
+구동 시 해당 파일들의 적용 순서는 나열된 순서와 같습니다. ( binding.cfg -> autoexec.cfg )
