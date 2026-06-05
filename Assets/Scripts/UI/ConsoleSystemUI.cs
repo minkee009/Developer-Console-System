@@ -12,6 +12,7 @@ using SPTr.CMD;
 using System.Text.RegularExpressions;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 
 
@@ -23,27 +24,6 @@ namespace SPTr.UI
 {
     public class ConsoleSystemUI : MonoBehaviour
     {
-#if UNITY_EDITOR
-        void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += EnsureEventSystem;
-        }
-
-        static void EnsureEventSystem()
-        {
-            UnityEditor.EditorApplication.delayCall -= EnsureEventSystem;
-
-            if (FindFirstObjectByType<EventSystem>() != null)
-                return;
-
-            GameObject go = new GameObject("EventSystem");
-            go.AddComponent<EventSystem>();
-            go.AddComponent<StandaloneInputModule>();
-
-            UnityEditor.Undo.RegisterCreatedObjectUndo(go, "Create EventSystem");
-        }
-#endif
-
         public static ConsoleSystemUI instance;
 
         [Header("UI ¿ä¼Ò")]

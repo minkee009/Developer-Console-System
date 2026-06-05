@@ -362,12 +362,12 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -686,6 +686,12 @@ MonoBehaviour:
   SuggestionTexts: {fileID: 4175126271586879593}
   CurrentSuggestionText: {fileID: 8084174282513792447}
   SuggestionsPanel: {fileID: 8733694352141838290}
+  OnWindowFocused:
+    m_PersistentCalls:
+      m_Calls: []
+  OnWindowUnfocused:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2387035082427844897
 GameObject:
   m_ObjectHideFlags: 0
@@ -1134,7 +1140,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 8482565072919889385}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.8641459
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2289,7 +2295,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6947614329966539961}
-  - component: {fileID: 5470984146430738087}
+  - component: {fileID: 7578240298893991794}
   m_Layer: 5
   m_Name: Text Scroll
   m_TagString: Untagged
@@ -2317,7 +2323,7 @@ RectTransform:
   m_AnchoredPosition: {x: -12, y: 1.5}
   m_SizeDelta: {x: -24, y: -51}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5470984146430738087
+--- !u!114 &7578240298893991794
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2326,7 +2332,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9020458204950372466}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Script: {fileID: 11500000, guid: c32b00f07d0766d43b1b0d9cd5f2a462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 3184883687092376159}
@@ -2336,7 +2342,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 8
+  m_ScrollSensitivity: 24
   m_Viewport: {fileID: 7065111612481299060}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 4902927989771027650}
@@ -2347,3 +2353,4 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+  _mouseWheelSensitivityMultiplier: 0.002
