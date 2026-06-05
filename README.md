@@ -135,3 +135,12 @@ bindtoggle t flag_cheats
 - 에디터든 게임이든 콘솔 시스템 UI가 최소 한번 이상 활성화된 경우 + autoexec.cfg가 없는 경우 자동생성됩니다. 이후 [에디터 씬 플레이 / 어플리케이션이 구동]될 때 마다 한번씩 자동으로 적용됩니다.
 
 구동 시 해당 파일들의 적용 순서는 나열된 순서와 같습니다. ( binding.cfg -> autoexec.cfg )
+
+## 전처리기
+`Edit → Project Settings → Player → Other Settings`에서
+`Scripting Define Symbols`에 다음과 같은 전처리 정의를 추가하여 최적화된 옵션을 사용할 수 있습니다.
+
+```
+DONT_AUTOCREATE_EVENTSYS
+```
+- v1.4.0 에서 추가된 편리 기능인 '프리펩 드래그 앤 드롭 시 자동 EventSystem 생성'을 막아 에디터의 일시적인 성능저하를 막을 수 있습니다.
