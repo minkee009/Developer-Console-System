@@ -329,7 +329,7 @@ namespace SPTr.CMD
 
         public static void InvokeBinding()
         {
-            foreach (var info in BindingList)
+            foreach (var info in _bindingDic.Values)
             {
                 if (!info.binding.Invoke()) continue;
 
