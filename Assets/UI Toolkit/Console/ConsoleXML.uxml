@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/Console/ConsoleStyle.uss?fileID=7433441132597879392&amp;guid=5c30f0d48a2175247a4c8595d5375de0&amp;type=3#ConsoleStyle"/>
+    <ui:VisualElement name="window" class="console-window" style="height: 320px; width: 500px;">
+        <ui:VisualElement name="title-bar" class="console-titlebar" style="border-top-left-radius: 3px; border-top-right-radius: 3px;">
+            <ui:Label text=":: console" class="console-title" style="margin-left: 0; margin-bottom: 4px; margin-top: 1px;"/>
+            <ui:Button text="✕" name="close-btn" class="console-close" style="margin-right: 0; margin-left: 2px; align-self: auto; align-content: flex-start; right: auto;"/>
+        </ui:VisualElement>
+        <ui:ScrollView name="log-list-area" class="log-list-area">
+            <ui:Label name="log-text-label" enable-rich-text="true" selectable="true" focusable="true" class="log-text-label"/>
+        </ui:ScrollView>
+        <ui:VisualElement name="input-area" class="input-area">
+            <ui:TextField name="command-input" placeholder-text="명령어를 입력하세요..." hide-placeholder-on-focus="true" class="command-text-field" style="flex-direction: column-reverse; font-size: 14px; padding-right: 0; padding-left: 0; margin-top: 2px; margin-bottom: 2px; padding-top: 0; padding-bottom: 0; text-shadow: 12px 12px 0 rgba(0, 0, 0, 0);"/>
+            <ui:Label name="ghost-suggestion" text="" class="ghost-suggestion" style="padding-left: 12px; font-size: 14px; padding-bottom: 0; padding-top: 1px;"/>
+            <ui:Button text="실행" name="submit-btn" class="submit-button"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="suggestion-panel" class="suggestion-panel" style="display: none;"/>
+        <ui:VisualElement name="handle-n" class="resize-handle handle-n"/>
+        <ui:VisualElement name="handle-s" class="resize-handle handle-s"/>
+        <ui:VisualElement name="handle-e" class="resize-handle handle-e"/>
+        <ui:VisualElement name="handle-w" class="resize-handle handle-w"/>
+        <ui:VisualElement name="handle-nw" class="resize-handle handle-nw"/>
+        <ui:VisualElement name="handle-ne" class="resize-handle handle-ne"/>
+        <ui:VisualElement name="handle-sw" class="resize-handle handle-sw"/>
+        <ui:VisualElement name="handle-se" class="resize-handle handle-se" style="margin-right: 0; margin-bottom: 0; margin-top: 0; margin-left: 0; bottom: -3px; right: -3px;"/>
+    </ui:VisualElement>
+</ui:UXML>
