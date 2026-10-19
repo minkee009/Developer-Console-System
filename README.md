@@ -101,7 +101,7 @@ static ConsoleCommand cmd_test = new ConsoleCommand("cmd_test", (bool value) => 
 ### 6. Bind
  > bind <키> <명령어 + 인자>
 - 지정한 키에 명령어를 할당합니다.
-- 키에 할당된 명령어를 해제시키려면 bind <키> ""를 입력해야 합니다. ex) bind g ""
+- bind <키> ""를 입력하여 키 할당을 해제시킬 수도 있습니다. ex) bind g ""
 
 ### 7. BindToggle
  > bindtoggle <키> <Tracking값이 있는 Boolean 명령어>
