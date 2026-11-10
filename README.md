@@ -3,7 +3,7 @@
 </div>
 
 <div align="center"> 
-  <img src="https://img.shields.io/badge/version-1.4.0d-green" /> 
+  <img src="https://img.shields.io/badge/version-1.4.0e-green" /> 
   <img src="https://img.shields.io/badge/license-MIT-yellow" /> 
 </div>
 
