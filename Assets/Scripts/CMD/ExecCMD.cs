@@ -23,7 +23,7 @@ namespace SPTr.CMD
         {
             if (!ConsoleConfig.TryReadConfig(fileName, out string[] lines))
             {
-                Debug.Log($"<color={COLOR_ERROR}>[{fileName}.cfg] 파일을 찾을 수 없습니다.</color>");
+                Debug.Log($"<color={COLOR_ERROR}>[{ConsoleConfig.ToConfigFileName(fileName)}] 파일을 찾을 수 없습니다.</color>");
                 return;
             }
 
