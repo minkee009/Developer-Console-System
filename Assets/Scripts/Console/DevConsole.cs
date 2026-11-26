@@ -6,6 +6,17 @@ using UnityEngine;
 
 namespace SPTr.DeveloperConsole
 {
+    public enum ConsoleMessageType
+    {
+        UnknownCommand = -1,
+        ArgumentCountError = -2,
+        ParameterError = -3,
+        FlagError = -4,
+        ExecuteError = -5,
+        FullInformation = 1,
+        CompactInformation = 2
+    }
+
     [Flags]
     public enum ExecFlag
     {
@@ -389,23 +400,98 @@ namespace SPTr.DeveloperConsole
             return _consoleCmds.TryGetValue(name, out cmd);
         }
 
-        public static bool ExecuteCommand(ConsoleCommand cmd, string param)
-        {
-            bool result = ExecuteCommand(cmd, param, out string errorMSG);
-            if(errorMSG != null)
-                System.Console.WriteLine($"명령어가 실행되지 않았습니다. {errorMSG}");
-            return result;
-        }
+        /// <summary>
+        /// 명령줄 하나를 실행합니다.
+        /// </summary>
+        /// <param name="line">실행할 명령줄입니다.</param>
+        /// <param name="printMSG">
+        /// 실행 후 상태 출력용 델리게이트입니다.
+        /// <para>
+        /// UnknownCommand: 알 수 없는 명령어 (Error Message 1개)<br/>
+        /// ArgumentCountError: 인자 수 에러 (Error Message 1개)<br/>
+        /// ParameterError: 매개변수 에러 (Error Message 1개)<br/>
+        /// FlagError: 플래그 에러 (Error Message 1개)<br/>
+        /// ExecuteError: 실행 에러 (Error Message 1개)<br/>
+        /// FullInformation: 전체 정보 표시 ([0] Command Name, [1] Value, [2] Initial Value, [3] Description)<br/>
+        /// CompactInformation: 짧은 정보 표시 ([0] Description)
+        /// </para>
+        /// </param>
+        public static bool ExecuteCommandLine(string line, Action<ConsoleMessageType, List<string>> printMSG = null)
+        {   
+            // 아무 명령이 실행되지 않는 경우 에러메시지를 내보내지 않음
+            if (string.IsNullOrWhiteSpace(line)) return true;
 
-        public static bool ExecuteCommand(ConsoleCommand cmd, string param, out string errorMSG)
-        {
-            errorMSG = string.Empty;
+            string[] splitText = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            if (cmd.Flag != ExecFlag.NONE && (cmd.Flag & _currentFlags) == 0)
+            // 위와 동일한 체크
+            if (splitText.Length == 0) return true;
+
+            var cmd = FindCommand(splitText[0]);
+
+            if (cmd == null)
             {
-                errorMSG = $"{cmd.Flag} 플래그가 켜져있지 않습니다.";
+                printMSG?.Invoke(ConsoleMessageType.UnknownCommand, new() { $"unknown command : {line}" });
                 return false;
             }
+
+            ReadOnlySpan<string> args = splitText.AsSpan(1..);
+
+            if (args.Length < 1)
+            {
+                if (cmd.Type != DevConObjType.isVoid)
+                {
+                    string value = cmd.TrackedValue?.Invoke() ?? string.Empty;
+                    string initValue = (cmd.TrackedValue != null && cmd.InitValue != null && cmd.InitValue != value) ? cmd.InitValue : string.Empty;
+                    string desc = (!string.IsNullOrEmpty(cmd.Description) && cmd.Description[0] != '/') ? $"{cmd.Description}" : string.Empty;
+
+                    if (cmd.Type == DevConObjType.isBool)
+                    {
+                        value = value.ToLower();
+                        initValue = initValue.ToLower();
+                    }
+                    printMSG?.Invoke(ConsoleMessageType.FullInformation, new() { cmd.Name, value, initValue, desc });
+                    return true;
+                }
+                else if (!string.IsNullOrEmpty(cmd.Description) && cmd.Description[0] != '/')
+                {
+                    printMSG?.Invoke(ConsoleMessageType.CompactInformation, new() { cmd.Description });
+                }
+
+                return ExecuteCommand(cmd, string.Empty, printMSG);
+            }
+            else if (args.Length > 1
+                && cmd.Type != DevConObjType.isString
+                && cmd.Type != DevConObjType.isVoid)
+            {
+                printMSG?.Invoke(ConsoleMessageType.ArgumentCountError, new() { "하나의 인자만 입력해야 합니다." });
+                return false;
+            }
+            else
+            {
+                var cmdLine = args[0];
+
+                if (cmd.Type == DevConObjType.isVoid && !string.IsNullOrEmpty(args[0]))
+                {
+                    printMSG?.Invoke(ConsoleMessageType.ParameterError, new() { $"{cmd.Name}은 매개변수가 없는 명령어입니다." });
+                    return false;
+                }
+
+                if (cmd.Type == DevConObjType.isString)
+                    cmdLine = string.Join(' ', splitText[1..]);
+
+                return ExecuteCommand(cmd, cmdLine, printMSG);
+            }
+        }
+
+        public static bool ExecuteCommand(ConsoleCommand cmd, string param, Action<ConsoleMessageType,List<string>> printMSG = null)
+        {
+            if (cmd.Flag != ExecFlag.NONE && (cmd.Flag & _currentFlags) == 0)
+            {
+                printMSG?.Invoke(ConsoleMessageType.FlagError, new() { $"{cmd.Flag} 플래그가 활성화 되어있지 않습니다." });
+                return false;
+            }
+
+            string errorMSG = string.Empty;
 
             bool boolParam = false;
             int intParam = 0;
@@ -470,7 +556,7 @@ namespace SPTr.DeveloperConsole
             }
             if (errorMSG != string.Empty)
             {
-                errorMSG = ($"명령어가 실행되지 않았습니다. {errorMSG}");
+                printMSG?.Invoke(ConsoleMessageType.ExecuteError, new() { $"명령어가 실행되지 않았습니다. {errorMSG}" });
                 return false;
             }
             else
@@ -479,6 +565,7 @@ namespace SPTr.DeveloperConsole
                 return true;
             }
         }
+
         #endregion
 
         #region ExecFlag

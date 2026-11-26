@@ -339,11 +339,9 @@ namespace SPTr.CMD
                         ? info.ConsumeToggleValue()
                         : info.cmdArguments;
 
-                    bool validExecute = DevConsole.ExecuteCommand(cmd, param, out string errorMSG);
+                    bool validExecute = DevConsole.ExecuteCommand(cmd, param, _printBindingMSG);
 
-                    if (!validExecute)
-                        PrintErrorMSG(errorMSG);
-                    else
+                    if (validExecute)
                         OnExcuteBinding?.Invoke();
                 }
                 else
@@ -374,6 +372,20 @@ namespace SPTr.CMD
         private static void PrintErrorMSG(string msg)
         {
             Debug.Log($"<color={COLOR_ERROR}>{msg}</color>");
+        }
+
+        // 바인딩 실행 시 출력용 콜백 (매 실행마다 델리게이트를 새로 만들지 않도록 캐싱)
+        private static readonly Action<ConsoleMessageType, List<string>> _printBindingMSG = PrintBindingMSG;
+
+        private static void PrintBindingMSG(ConsoleMessageType type, List<string> msgs)
+        {
+            switch (type)
+            {
+                case ConsoleMessageType.FlagError:
+                case ConsoleMessageType.ExecuteError:
+                    PrintErrorMSG(msgs[0]);
+                    break;
+            }
         }
     }
 }

@@ -298,82 +298,39 @@ namespace SPTr.UI
 
             Debug.Log($"> {TextField.text}");
 
-            string[] splitText = TextField.text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (DevConsole.ExecuteCommandLine(TextField.text, PrintConsoleMessage))
+                _lastInputText.Add(TextField.text);
 
-            if (splitText[0] == "")
-                return;
-
-            var cmd = DevConsole.FindCommand(splitText[0]);
-
-            if (cmd == null)
-            {
-                Debug.Log($"unknown command : {TextField.text}");
-                TextField.text = "";
-                return;
-            }
-
-            ProcessCMD(cmd, splitText[1..]);
-
-            _lastInputText.Add(TextField.text);
             TextField.text = "";
         }
 
-        public void ProcessCMD(ConsoleCommand cmd, string[] args)
+        private void PrintConsoleMessage(ConsoleMessageType type, List<string> msgs)
         {
-            if (args.Length < 1)
+            switch (type)
             {
-                if (cmd.Type != DevConObjType.isVoid)
-                {
-                    string desc = (cmd.Description != "" && cmd.Description[0] != '/') ? $", <color={COLOR_INFO}>{cmd.Description}</color>" : string.Empty;
-                    string value = cmd.TrackedValue != null ? $" = {cmd.TrackedValue.Invoke()}" : string.Empty;
-                    string initValue = (cmd.InitValue != null && cmd.InitValue != cmd.TrackedValue.Invoke()) ? $" <color={COLOR_VALUE}>( init = {cmd.InitValue} )</color>" : string.Empty;
-
-                    if (cmd.Type == DevConObjType.isBool)
-                    {
-                        value = value.ToLower();
-                        initValue = initValue.ToLower();
-                    }
-                    Debug.Log($"<color=#9FF781>[{cmd.Name}{value}]</color>{initValue}{desc}");
-                    return;
-                }
-                else if (cmd.Description != "" && cmd.Description[0] != '/')
-                {
-                    Debug.Log($"<color={COLOR_INFO}>{cmd.Description}</color>");
-                }
-                else if (cmd.Flag != ExecFlag.NONE
-                    && (cmd.Flag & DevConsole.CurrentFlags) == 0)
-                {
-                    Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
-                    return;
-                }
-                DevConsole.ExecuteCommand(cmd, string.Empty);
-            }
-            else if (args.Length > 1
-                && cmd.Type != DevConObjType.isString
-                && cmd.Type != DevConObjType.isVoid)
-            {
-                Debug.Log($"<color={COLOR_ERROR}>하나의 인자만 입력해야 합니다.</color>");
-            }
-            else
-            {
-                var cmdLine = args[0];
-
-                if (cmd.Type == DevConObjType.isVoid && args[0] != "")
-                {
-                    Debug.Log($"<color={COLOR_ERROR}>{cmd.Name}은 매개변수가 없는 명령어입니다.</color>");
-                    return;
-                }
-
-                if (cmd.Type == DevConObjType.isString)
-                    cmdLine = string.Join(" ", args);
-
-                if (!DevConsole.ExecuteCommand(cmd, cmdLine)
-                    && cmd.Flag != ExecFlag.NONE
-                    && (cmd.Flag & DevConsole.CurrentFlags) == 0)
-                {
-                    Debug.Log($"<color={COLOR_ERROR}>{cmd.Flag}플래그가 활성화 되어있지 않습니다.</color>");
-                    return;
-                }
+                case ConsoleMessageType.UnknownCommand:
+                    Debug.Log(msgs[0]);
+                    break;
+                case ConsoleMessageType.FullInformation:
+                    string value = string.IsNullOrEmpty(msgs[1]) ? string.Empty : $" = {msgs[1]}";
+                    string initValue = string.IsNullOrEmpty(msgs[2]) ? string.Empty : $" <color={COLOR_VALUE}>( init = {msgs[2]} )</color>";
+                    string desc = string.IsNullOrEmpty(msgs[3]) ? string.Empty : $", <color={COLOR_INFO}>{msgs[3]}</color>";
+                    Debug.Log($"<color=#9FF781>[{msgs[0]}{value}]</color>{initValue}{desc}");
+                    break;
+                case ConsoleMessageType.CompactInformation:
+                    Debug.Log($"<color={COLOR_INFO}>{msgs[0]}</color>");
+                    break;
+                case ConsoleMessageType.FlagError:
+                case ConsoleMessageType.ArgumentCountError:
+                case ConsoleMessageType.ParameterError:
+                    Debug.Log($"<color={COLOR_ERROR}>{msgs[0]}</color>");
+                    break;
+                /*
+                case ConsoleMessageType.ExecuteError:
+                    if ((DevConsole.CurrentFlags & ExecFlag.DEBUG) != 0)
+                        Debug.Log($"<color={COLOR_ERROR}>{msgs[0]}</color>");
+                    break;
+                */
             }
         }
 
