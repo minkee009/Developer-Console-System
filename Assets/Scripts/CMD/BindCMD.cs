@@ -28,6 +28,10 @@ namespace SPTr.CMD
 #else
         private static Dictionary<KeyCode ,BindingInfo> _bindingDic = new Dictionary<KeyCode, BindingInfo>();
 #endif
+
+        // 바인딩 실행 시 출력용 콜백 (매 실행마다 델리게이트를 새로 만들지 않도록 캐싱)
+        private static readonly Action<ConsoleMessageType, List<string>> _printBindingMSG = PrintBindingMSG;
+
         public class BindingInfo
         {
             public BindingInfo(Func<bool> binding, string cmdName, string cmdArguments)
@@ -373,9 +377,6 @@ namespace SPTr.CMD
         {
             Debug.Log($"<color={COLOR_ERROR}>{msg}</color>");
         }
-
-        // 바인딩 실행 시 출력용 콜백 (매 실행마다 델리게이트를 새로 만들지 않도록 캐싱)
-        private static readonly Action<ConsoleMessageType, List<string>> _printBindingMSG = PrintBindingMSG;
 
         private static void PrintBindingMSG(ConsoleMessageType type, List<string> msgs)
         {

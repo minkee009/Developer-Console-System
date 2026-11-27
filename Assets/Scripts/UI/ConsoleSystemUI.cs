@@ -53,6 +53,8 @@ namespace SPTr.UI
         private List<string> _suggestions = new List<string>();
         private StringBuilder _sb = new StringBuilder();
 
+        private Action<ConsoleMessageType, List<string>> _printMSG;
+
         public static ConsoleCommand echo = new ConsoleCommand("echo",
             (string args) =>
             {
@@ -113,6 +115,8 @@ namespace SPTr.UI
                 BindCMD.OnExcuteBinding += UpdateSuggestions;
 
                 ExecCMD.ExecuteAutoExec();
+
+                _printMSG = PrintConsoleMessage;
             }
             else
             {
@@ -291,14 +295,14 @@ namespace SPTr.UI
 
         public void ExcuteConsoleText()
         {
-            if (TextField.text == "")
+            if (string.IsNullOrEmpty(TextField.text))
                 return;
 
             TextField.text = Regex.Replace(TextField.text, @"<[^>]+>", string.Empty);
 
             Debug.Log($"> {TextField.text}");
 
-            if (DevConsole.ExecuteCommandLine(TextField.text, PrintConsoleMessage))
+            if (DevConsole.ExecuteCommandLine(TextField.text, _printMSG))
                 _lastInputText.Add(TextField.text);
 
             TextField.text = "";
